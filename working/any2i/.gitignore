@@ -1,0 +1,6 @@
+__pycache__
+model_weight/*
+movie/*
+save/*
+saves/*
+!*.gitkeep
