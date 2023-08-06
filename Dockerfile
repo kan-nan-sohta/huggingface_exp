@@ -19,15 +19,12 @@ RUN apt update
 RUN apt install --no-install-recommends -y git curl make python3-pip libglib2.0-0 libsm6 libxrender1 libxext6 libgl1-mesa-dev
 RUN pip install poetry
 
-# Add user. Without this, following process is executed as admin. 
 RUN groupadd -g ${GID} ${GROUP_NAME} \
     && useradd -ms /bin/sh -u ${UID} -g ${GID} ${USER_NAME}
 
 USER ${USER_NAME}
 WORKDIR ${APPLICATION_DIRECTORY}
-
-# If ${RUN_POETRY_INSTALL_AT_BUILD_TIME} = "true", install Python package by Poetry and move .venv under ${HOME}.
-# This process is for CI (GitHub Actions). To prevent overwrite by volume of docker compose, .venv is moved under ${HOME}.
-# COPY --chown=${UID}:${GID} ${WORKING_PATH}/pyproject.toml ${WORKING_PATH}/poetry.lock ${WORKING_PATH}/poetry.toml .
+RUN poetry config virtualenvs.in-project true
+RUN poetry config cache-dir ${APPLICATION_DIRECTORY}/.cache
 RUN test ${RUN_POETRY_INSTALL_AT_BUILD_TIME} = "true" && poetry install || echo "skip to run poetry install."
 RUN test ${RUN_POETRY_INSTALL_AT_BUILD_TIME} = "true" && mv ${APPLICATION_DIRECTORY}/.venv ${HOME}/.venv || echo "skip to move .venv."

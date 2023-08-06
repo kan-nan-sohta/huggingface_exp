@@ -8,7 +8,7 @@ build: # Build docker image
 .PHONY: start
 start: # Start docker container
 	sudo docker run \
-		-v /mnt/c/Users/ctddd/huggingface-exp:/home/kan_nan/huggingface-exp \
+		-v /home/kan_nan/huggingface_exp:/home/kan_nan/huggingface-exp \
 		--rm \
 		--gpus all \
-		-it huggingface-exp-core
+		-it huggingface_exp-core

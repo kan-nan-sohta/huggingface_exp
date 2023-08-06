@@ -1,0 +1,9 @@
+.cache
+origin/*
+origin_frame/*
+super/*
+super_frame/*
+!origin/.gitkeep
+!origin_frame/.gitkeep
+!super/.gitkeep
+!super_frame/.gitkeep
