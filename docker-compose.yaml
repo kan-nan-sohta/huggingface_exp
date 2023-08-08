@@ -14,6 +14,8 @@ services:
         - GID=${HOST_GID-1000}
       context: .
       dockerfile: Dockerfile
+    volumes:
+      - .:/home/kan_nan/huggingface-exp
     tty: true
     ports:
         - 8002:8002

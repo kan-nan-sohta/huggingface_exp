@@ -24,6 +24,7 @@ RUN groupadd -g ${GID} ${GROUP_NAME} \
 
 USER ${USER_NAME}
 WORKDIR ${APPLICATION_DIRECTORY}
+COPY working ${APPLICATION_DIRECTORY}
 RUN poetry config virtualenvs.in-project true
 RUN poetry config cache-dir ${APPLICATION_DIRECTORY}/.cache
 RUN test ${RUN_POETRY_INSTALL_AT_BUILD_TIME} = "true" && poetry install || echo "skip to run poetry install."
