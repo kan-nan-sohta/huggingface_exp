@@ -7,3 +7,4 @@ super_frame/*
 !origin_frame/.gitkeep
 !super/.gitkeep
 !super_frame/.gitkeep
+weight/*
