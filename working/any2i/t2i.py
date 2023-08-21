@@ -9,10 +9,12 @@ from glob import glob
 from tqdm.auto import tqdm
 import os
 from PIL import Image
-from diffusers import StableDiffusionControlNetPipeline, ControlNetModel, UniPCMultistepScheduler
+from diffusers import StableDiffusionControlNetPipeline, ControlNetModel, UniPCMultistepScheduler, StableDiffusionPipeline, StableDiffusionXLControlNetPipeline
 import torch
 from controlnet_aux import HEDdetector, LineartAnimeDetector, OpenposeDetector
 from diffusers.utils import load_image
+from optimum.onnxruntime import ORTStableDiffusionPipeline
+
 
 def preprocess(image):
     w, h = image.size
@@ -40,13 +42,23 @@ def keepAspectResizeSimple(path, size):
 #     custom_pipeline="lpw_stable_diffusion"
 # )
 # pipe.to("cuda")
-
-pipe = StableDiffusionControlNetPipeline.from_pretrained(
-    "model_weight/hakoMayD",
-    cache_dir="model_weight", 
-    torch_dtype=torch.float16, 
-    custom_pipeline="lpw_stable_diffusion"
+controlnet = ControlNetModel.from_pretrained(
+    "diffusers/controlnet-canny-sdxl-1.0",
+    torch_dtype=torch.float16
 )
+pipe = StableDiffusionXLControlNetPipeline.from_pretrained(
+    "model_weight/earthAnimixXL_v10",
+    controlnet = controlnet,
+    cache_dir="model_weight",
+    torch_dtype=torch.float16
+)
+# (
+#     "model_weight/earthAnimixXL_v10",
+#     cache_dir="model_weight", 
+#     torch_dtype=torch.float16, 
+#     custom_pipeline="lpw_stable_diffusion"
+# )
+# help(pipe.__call__)
 pipe.to("cuda")
 
 base_prompt= ""
@@ -57,11 +69,12 @@ preprocess_2 = OpenposeDetector.from_pretrained("lllyasviel/Annotators", cache_d
 
 # prompt = "((((((frontal face)))))), ((red eyes)), ((black hair)), ((mono tone clothes)), full_body, The girl is in the center of the frame, a cute girl,woman,female, young,20 years old, medium hair, standing"
 n_prompt = ""
-prompt = "a man with 2 wings, standing, look front, full body"
+prompt = "An AI agnet playing with a man, anime"
 
 def conv_img(size=512):
     # init_img = keepAspectResizeSimple(img_path, size).convert('RGB')
-    # init_img = init_img.resize((size, size))
+    num = (np.random.rand(size, size, 3)*255).astype(np.uint8)
+    init_img = Image.fromarray(num)
     # init_img = preprocess(init_img)[0]
     # print(init_img.shape)
     # img = Image.open(img_path).convert("RGB").resize((size, size))
@@ -71,9 +84,9 @@ def conv_img(size=512):
     image = pipe(
         prompt=base_prompt+prompt, 
         negative_prompt=base_n_prompt + n_prompt,
-        # image=img, 
+        image=init_img, 
         # strength=strength,
-        max_embeddings_multiples=2
+        # max_embeddings_multiples=2
     ).images[0]
 
     return image
